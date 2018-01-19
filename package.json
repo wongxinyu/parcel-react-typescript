@@ -1,0 +1,33 @@
+{
+  "name": "parcel-react-typescript",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wongxinyu/parcel-react-typescript.git"
+  },
+  "keywords": [
+    "parcel",
+    "react",
+    "typescript"
+  ],
+  "author": "wongxinyu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wongxinyu/parcel-react-typescript/issues"
+  },
+  "homepage": "https://github.com/wongxinyu/parcel-react-typescript#readme",
+  "devDependencies": {
+    "stylus": "^0.54.5",
+    "typescript": "^2.6.2"
+  },
+  "dependencies": {
+    "@types/react": "^16.0.34",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
+  }
+}
