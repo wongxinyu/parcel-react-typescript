@@ -279,8 +279,118 @@ The issue seems to be with @types/react, removing it (and all packages that have
 我选择后者,因为它并没有因为缺乏声明文件报错(why?),顺带@types/react-dom也删了。
 至此，页面如期正常显示了hello world。
 
-在程序的世界，粗心是要付出巨大的代价的。。。
+坑爹的是，在我复原bug过程，编辑器竟然给出了component的标红报错，是反应迟钝吗。。。
+
+不管怎样，在程序的世界，粗心是要付出巨大的代价的。。。
 
 接下来，引入路由
 
 # 第五步 （配置路由）
+很简单，react官方路由react-router是核心库，针对web端dom绑定有包装过的react-router-dom（安装它，会同时安装react-router),类似还有react-router-native,react-router-redux，我们直接安装react-router-dom。
+```
+yarn add react-router-dom
+```
+阅读文档，发现，它是所谓动态路由，与常用的静态路由很不同。
+静态路由是写好一个路由配置文件，再导入使用。
+动态路由，是在页面组件上直接使用直接配置，也就是把路由配置文件拆解了，化用到组件里。
+
+大致使用如下（模拟用法，非可用示例）：
+```
+import {BrowserRouter as Router, Route, Link} from 'react-router-dom'
+const HelloA = <h1>hello, A</h1>
+const HelloB = <h1>hello, B</h1>
+const HelloC = <h1>hello, C</h1>
+const Root = (
+  <Router>
+    <Link to="/a">A</Link>
+    <Link to="/b">B</Link>
+    <Link to="/c">C</Link>
+    <Route path="/a" component={HelloA} />
+    <Route path="/b" component={HelloB} />
+    <Route path="/c" component={HelloC} />
+  </Router>
+)
+```
+这里，Router代表一个路由容器或者视图view, 由Route定义一个个路由，导向的页面展示在Router里，Link是路由链接，静态路由是把Route写成配置文件的，页面里只有Router-view和Router-link可以猜测一下，几个Link是处于默认路由页面的，点击A，或者地址/a,大概会变成这样
+```
+<Router>
+<h1>hello,A</h1>
+</Router>
+```
+上面的代码会爆错误，如下：
+
+1. componentABC,不能是jsx对象写法，必须是函数。
+```
+const HelloA = () => <h1>hello, A</h1>
+const HelloB = () => <h1>hello, B</h1>
+const HelloC = () => <h1>hello, C</h1>
+```
+或者这样, 使用render属性
+```
+const HelloA = <h1>hello, A</h1>
+<Route path="/a" render={() => HelloA} />
+<Route path="/b" render={() => <h1>hello ,B</h1>} />
+```
+2. Router容器只能有一个子元素, 要给它里面的元素包个壳子。也就是Router本身不渲染标签。
+```
+<Router>
+  <div class="router-root">
+    <Route />
+    <Route />
+  </div>
+</Router>
+```
+3. 上面的猜测错了。路由链接并没有被覆盖, 并且作为"/"根路由页面内容渲染的。
+```
+<div class="router-root">
+  <a href="/a">A</a>
+  <a href="/b">B</a>
+  <a href="/c">C</a>
+  <h1>hello, A</h1>
+</div>
+```
+4. 注意react中class要变成className
+下面试一试嵌套路由
+```
+const HelloA = () => (
+  <div className="hello-a">
+    <h1>hello, A</h1>
+    <Link to="/a/b">B</Link>
+    <Route path="/a/b" component={HelloB} />
+  </div>
+)
+const HelloB = () => (
+  <div className="hello-b">
+    <h1>hello, B</h1>
+    <Link to="/a/b/c">C</Link>
+    <Route path="/a/b/c" component={HelloC} />
+  </div>
+)
+const HelloC = () => <h1>hello, C</h1>
+const Root = (
+  <Router>
+    <div className="router-root">
+    <Link to="/a">A</Link>
+    <Route path="/a" component={HelloA} />
+    </div>
+  </Router>
+)
+ReactDOM.render(Root, document.getElementById('root') as HTMLElement)
+```
+
+综上，路由页面是替换Route元素渲染进去的
+```
+<div class="router-root">
+  <a href="/a">A</a>
+  <div class="hello-a">
+    <h1>hello, A</h1>
+    <a href="/a/b">B</a>
+    <div class="hello-b">
+      <h1>hello, B</h1>
+      <a href="/a/b/c">C</a>
+      <h1>hello, C</h1>
+    </div>
+  </div>
+</div>
+```
+# 函数式路由，指定跳转。
