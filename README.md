@@ -6,15 +6,15 @@
 ```
 .gitignore
 package.json
-src/ 
-  index.html 
+src/
+  index.html
   index.js
   index.css
 ```
 src/index.html：主页面打包入口，提供根元素标签，引入index.js,：
 ```
 <body>
-  <div id="root"></div> 
+  <div id="root"></div>
   <script src="./index.js"></script>
 </body>
 
@@ -394,3 +394,52 @@ ReactDOM.render(Root, document.getElementById('root') as HTMLElement)
 </div>
 ```
 # 函数式路由，指定跳转。
+除了页面链接，在表单提交成功等情况通常需要指定跳转页面，其他框架一般都有类似下面的写法
+```
+this.router.push('/xx')
+this.router.go('/xx')
+this.history.push('/xx')
+```
+react-router旧版本是导出了history对象(3种），挂到Router上使用的
+```
+import {browserHistory/hashHistory/memoryHistory } from 'react-router'
+class App extends React.Component {
+  ...
+  submit () {
+    browserHistory.push('/app')
+  }
+  ...
+}
+<Router history={browserHistory}>
+  <Route path="/app" component={App}>
+</Router>
+```
+react-router v4中，3种Router组件分别创建了3种history对象,不需要再引用
+```
+<BrowserRouter></BrowserRouter>
+<HashRouter></HashRouter>
+<MemoryRouter><MemoryRouter>
+```
+使用如下, 挂到了组件的props上：
+```
+class HelloA extends React.Component {
+  constructor(props) {
+    super(props)
+    this.submit = this.submit.bind(this)
+  }
+  submit () {
+    this.props.history.push('/a/b/c')
+  }
+  render () {
+    return (
+      <div className="hello-a">
+        <h1 className="red">hello, A</h1>
+        <button onClick={this.submit}>提交</button>
+        <Link to="/a/b">B</Link>
+        <Route path="/a/b" component={HelloB} />
+      </div>
+    )
+  }
+}
+```
+# 引入HTTP客户端axios
